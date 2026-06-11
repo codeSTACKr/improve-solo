@@ -96,4 +96,4 @@ Modifier on any planning invocation (`/improve-solo --issues`, `/improve-solo se
 3. Per plan: `gh issue create --title "<plan title>" --body-file <plan file>` (solo: export the scratchpad to a temp file first — see solo-backend.md). Labels: `improve` plus the category — apply only if the labels exist or can be created without erroring; skip labels rather than fail.
 4. Record each issue URL in the plan's Status block and the index (solo: scratchpad Status block + todo comment).
 
-The primary store remains the source of truth; the issue is distribution. The self-containment rule pays off here — the issue body needs no edits to make sense to whoever (or whatever) picks it up.
+The primary store remains the source of truth; the issue is distribution. The self-containment rule pays off here — the issue body needs no edits to make sense to whoever (or whatever) picks it up. Issues are public output: the playbook's untrusted content rule applies, so repo-embedded text appears only as minimal quoted evidence.
