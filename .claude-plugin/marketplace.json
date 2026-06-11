@@ -1,5 +1,6 @@
 {
   "name": "improve-solo",
+  "description": "Marketplace for improve-solo — an audit-and-plan skill that writes executor-ready plans, stored natively in Solo when available.",
   "owner": { "name": "Jesse Hall" },
   "plugins": [
     {
