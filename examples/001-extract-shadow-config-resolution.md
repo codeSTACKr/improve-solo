@@ -1,7 +1,8 @@
 > **Sample output.** A real plan produced by `/improve` against
 > [shadcn/ui](https://github.com/shadcn-ui/ui) at commit `1994caba0`
 > (2026-06-10), kept here as an example of the format. The codebase has
-> moved on — don't execute this; run `/improve` on your own repo instead.
+> moved on — don't execute this; run `/improve-solo` on your own repo instead.
+> This is the files-store format; see [solo-store.md](solo-store.md) for the same artifact model in Solo.
 
 # Plan 001: Extract shared shadow-config resolution used by search and view
 
