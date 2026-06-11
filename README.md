@@ -5,10 +5,9 @@ A fork of [shadcn/improve](https://github.com/shadcn/improve) — an agent skill
 The idea is unchanged: use your most capable model for the part where intelligence compounds — understanding the codebase, judging what's worth doing, writing the spec — and hand execution to cheaper models. The skill never implements anything itself. The plan is the product.
 
 ```
-solo (auto-detected)  →  scratchpad "Plan 001: …"        the document
-                          + todo "Plan 001: …"            status, priority, blockers, comments
---files               →  plans/001-fix-n-plus-one.md     self-contained spec files
---issues              →  GitHub issues                    additive distribution on either store
+you          →  /improve-solo                (expensive model, advises)
+plans        →  Solo scratchpads + todos     (auto-detected; --files for plans/*.md)
+other agent  →  implements, tests, ships     (cheap model, executes; you merge)
 ```
 
 ## Storage backends
