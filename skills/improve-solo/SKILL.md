@@ -4,7 +4,7 @@ description: Survey any codebase as a senior advisor and produce prioritized, se
 license: MIT
 metadata:
   author: jesse (fork of improve by shadcn)
-  version: "1.0.0"
+  version: "1.1.0"
   upstream: https://github.com/shadcn/improve
 ---
 
