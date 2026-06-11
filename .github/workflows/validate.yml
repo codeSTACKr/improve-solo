@@ -1,0 +1,54 @@
+name: validate
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: JSON manifests are valid
+        run: |
+          python3 -m json.tool .claude-plugin/plugin.json > /dev/null
+          python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
+      - name: Version declarations agree
+        run: |
+          python3 - <<'EOF'
+          import json, re, sys
+          pj = json.load(open('.claude-plugin/plugin.json'))['version']
+          skill = open('skills/improve-solo/SKILL.md').read()
+          m = re.search(r'^\s*version:\s*"([^"]+)"', skill, re.M)
+          if not m or m.group(1) != pj:
+              sys.exit(f'version mismatch: plugin.json={pj} SKILL.md={m.group(1) if m else None}')
+          EOF
+      - name: Relative markdown links resolve
+        run: |
+          python3 - <<'EOF'
+          import os, re, sys
+          bad = []
+          for root, dirs, files in os.walk('.'):
+              dirs[:] = [d for d in dirs if d not in ('.git', '.github')]
+              for f in files:
+                  if not f.endswith('.md'):
+                      continue
+                  p = os.path.join(root, f)
+                  for m in re.finditer(r'\]\(([^)#\s]+)\)', open(p).read()):
+                      t = m.group(1)
+                      if t.startswith(('http://', 'https://', 'solo://', 'mailto:')):
+                          continue
+                      if not os.path.exists(os.path.normpath(os.path.join(os.path.dirname(p), t))):
+                          bad.append(f'{p}: broken link -> {t}')
+          if bad:
+              sys.exit('\n'.join(bad))
+          EOF
+      - name: Plugin validates cleanly
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          out=$(claude plugin validate . 2>&1) || { echo "$out"; exit 1; }
+          echo "$out"
+          if echo "$out" | grep -q '❯'; then
+            echo 'validation produced warnings'; exit 1
+          fi
