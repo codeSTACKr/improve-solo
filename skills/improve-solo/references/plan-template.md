@@ -10,7 +10,7 @@ Three properties make a plan executable by a weaker model:
 
 File naming: `plans/NNN-short-slug.md`, numbered in recommended execution order.
 
-**Under `--solo`** ([solo-backend.md](solo-backend.md)): the plan body below is identical, but it lives in a scratchpad named `Plan NNN: <title>` paired with a todo; the Status block gains a `- **Todo**: <todo_id>` line; "Depends on" is additionally encoded as todo blockers; and the executor instructions' index-update line never applies (the reviewer always maintains status — executors report via a todo comment only).
+**Under the Solo store** ([solo-backend.md](solo-backend.md)): the plan body below is identical, but it lives in a scratchpad named `Plan NNN: <title>` paired with a todo; the Status block gains a `- **Todo**: <todo_id>` line; "Depends on" is additionally encoded as todo blockers; and the executor instructions' index-update line never applies (the reviewer always maintains status — executors report via a todo comment only).
 
 ---
 
@@ -157,7 +157,7 @@ For the human/agent who owns this code after the change lands:
 
 ## Index file: `plans/README.md` (files store)
 
-Under `--solo` there is no index file — `todo_list(tags=["improve-plan"])` is the index (priority + blockers + status natively), and the "considered and rejected" memory lives in the run's audit-report scratchpad.
+Under the Solo store there is no index file — `todo_list(tags=["improve-plan"])` is the index (priority + blockers + status natively), and the "considered and rejected" memory lives in the run's audit-report scratchpad.
 
 Written once by the advisor after all plans, updated by executors:
 

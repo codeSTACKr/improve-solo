@@ -4,7 +4,7 @@ The advisor's job doesn't end at the plan. This file covers the three follow-thr
 
 The founding rule survives unchanged: **the advisor never edits source code.** In `execute`, a *separate executor agent* edits code in an isolated git worktree; the advisor dispatches, reviews, and renders a verdict — like a tech lead who doesn't push commits to your branch.
 
-**Backend note:** this file describes the flows in files-store terms; the principles (preconditions, review standards, verdict table, reconcile duties) apply identically under `--solo`. Where the *mechanics* differ — Solo-agent dispatch, report-as-todo-comment, idle-timer wake-ups, status via todo updates — [solo-backend.md](solo-backend.md) overrides the mechanics described here. Read both before the first Solo-mode dispatch.
+**Backend note:** this file describes the flows in files-store terms; the principles (preconditions, review standards, verdict table, reconcile duties) apply identically under the Solo store. Where the *mechanics* differ — Solo-agent dispatch, report-as-todo-comment, idle-timer wake-ups, status via todo updates — [solo-backend.md](solo-backend.md) overrides the mechanics described here. Read both before the first Solo-mode dispatch.
 
 ---
 

@@ -1,30 +1,30 @@
 # improve-solo
 
-A fork of [shadcn/improve](https://github.com/shadcn/improve) — an agent skill that audits any codebase and writes implementation plans for other agents to execute — with **pluggable persistence**. By default it behaves exactly like upstream (plans as files). With `--solo` it stores and dispatches natively through [Solo](https://soloterm.com): plans become scratchpad + todo pairs, dependencies become real todo blockers, executors are Solo agents, and review wake-ups use Solo idle timers.
+A fork of [shadcn/improve](https://github.com/shadcn/improve) — an agent skill that audits any codebase and writes implementation plans for other agents to execute — with **pluggable persistence**. When Solo is available it stores and dispatches natively through [Solo](https://soloterm.com) — auto-detected, no flag needed: plans become scratchpad + todo pairs, dependencies become real todo blockers, executors are Solo agents, and review wake-ups use Solo idle timers. With `--files` it behaves exactly like upstream (plans as files).
 
 The idea is unchanged: use your most capable model for the part where intelligence compounds — understanding the codebase, judging what's worth doing, writing the spec — and hand execution to cheaper models. The skill never implements anything itself. The plan is the product.
 
 ```
-files (default)  →  plans/001-fix-n-plus-one.md     self-contained spec files
---solo           →  scratchpad "Plan 001: …"        the document
-                    + todo "Plan 001: …"            status, priority, blockers, comments
---issues         →  GitHub issues                   additive distribution on either store
+solo (auto-detected)  →  scratchpad "Plan 001: …"        the document
+                          + todo "Plan 001: …"            status, priority, blockers, comments
+--files               →  plans/001-fix-n-plus-one.md     self-contained spec files
+--issues              →  GitHub issues                    additive distribution on either store
 ```
 
 ## Storage backends
 
-Exactly **one primary store** per run; `--issues` is additive on top of either.
+Exactly **one primary store** per run; `--issues` is additive on top of either. Solo is auto-detected; `--files` opts out.
 
-| | files (default) | `--solo` |
+| | solo (default when available) | `--files` |
 |---|---|---|
-| Plan body | `plans/NNN-slug.md` | scratchpad `Plan NNN: <title>` |
-| Index / status | `plans/README.md` table | the todo list itself (`improve-plan` tag) |
-| Dependencies | prose in the index | native todo blockers |
-| BLOCKED / REJECTED | status column | tags `blocked` / `rejected` + reason comments |
-| Audit memory (rejected findings) | `plans/README.md` section | per-run audit-report scratchpad |
-| Executor (`execute`) | host subagent, isolated worktree | `spawn_agent` in an advisor-created worktree |
-| Executor report | subagent's final reply | todo comment |
-| Review wake-up | inline | `timer_fire_when_idle_any` |
+| Plan body | scratchpad `Plan NNN: <title>` | `plans/NNN-slug.md` |
+| Index / status | the todo list itself (`improve-plan` tag) | `plans/README.md` table |
+| Dependencies | native todo blockers | prose in the index |
+| BLOCKED / REJECTED | tags `blocked` / `rejected` + reason comments | status column |
+| Audit memory (rejected findings) | per-run audit-report scratchpad | `plans/README.md` section |
+| Executor (`execute`) | `spawn_agent` in an advisor-created worktree | host subagent, isolated worktree |
+| Executor report | todo comment | subagent's final reply |
+| Review wake-up | `timer_fire_when_idle_any` | inline |
 
 **One backlog, never two:** if prior plans exist in the other store, the skill says so and follows the existing store rather than forking the backlog.
 
@@ -47,8 +47,8 @@ of the same skill name will conflict or silently shadow each other.
 ## Usage
 
 ```
-/improve-solo                        full audit → prioritized findings → plans (files)
-/improve-solo --solo                 same, stored and dispatched through Solo
+/improve-solo                        full audit → prioritized findings → plans (Solo when available, else files)
+/improve-solo --files                plans as local files (upstream behavior)
 /improve-solo quick|deep             effort level
 /improve-solo security               focused audit (also: perf, tests, bugs, ...)
 /improve-solo branch                 audit only what the current branch changes
@@ -60,11 +60,11 @@ of the same skill name will conflict or silently shadow each other.
 /improve-solo ... --issues           also publish plans as GitHub issues
 ```
 
-All modifiers compose: `/improve-solo deep security --solo --issues`.
+All modifiers compose: `/improve-solo deep security --files --issues`.
 
-## How `--solo` mode works
+## How the Solo store works
 
-- **Phase 0**: verifies the selected Solo project matches the repo (`whoami` / `select_project`; creates a project if none exists). Never writes into a mismatched project.
+- **Phase 0**: verifies the selected Solo project matches the repo (`whoami` / `select_project`; creates a project if none exists). Never writes into a mismatched project. Solo is auto-detected when the Solo MCP tools are available; `--solo` forces it explicitly when needed.
 - **Plans**: each is a scratchpad (full plan: drift check, steps, verification gates, STOP conditions) paired with a todo (priority P1/P2/P3 → high/medium/low; blockers = dependency graph). Each half links the other's ID. NNN numbering stays monotonic across runs.
 - **Audit record**: one scratchpad per run with recon facts, the vetted findings table, what wasn't audited, and rejected findings — so the next run doesn't re-audit dead ends.
 - **`execute`**: the advisor creates a git worktree, spawns a Solo agent, and delivers the plan *by scratchpad ID* (worktrees are linked checkouts, which share project-scoped scratchpads/todos in Solo ≥ 0.8.2). The executor posts its report as a todo comment and never touches status — the advisor wakes on an idle timer, re-runs every done criterion itself, and renders APPROVE / REVISE (`send_input`, max 2 rounds) / BLOCK. Merging stays yours.
@@ -75,7 +75,7 @@ Audit fan-out still uses the host's lightweight read-only subagents in both mode
 
 ## Hard rules (unchanged from upstream)
 
-- Never modifies source code itself. Writes go only to `plans/` (files mode) or Solo artifacts (`--solo`); executors edit only in disposable worktrees, and merging is always yours.
+- Never modifies source code itself. Writes go only to `plans/` (`--files` mode) or Solo artifacts (Solo store); executors edit only in disposable worktrees, and merging is always yours.
 - Never runs commands that mutate your working tree — read, search, and read-only analysis only.
 - Never reproduces secret values. Locations and credential types only, rotation always recommended.
 - Asked to implement? It declines and points at the plan (or offers `execute`).

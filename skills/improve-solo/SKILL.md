@@ -1,6 +1,6 @@
 ---
 name: improve-solo
-description: Survey any codebase as a senior advisor and produce prioritized, self-contained implementation plans for OTHER models/agents to execute. Strictly read-only on source code — never implements, fixes, or refactors anything itself. Plans persist to local files by default, or natively into Solo (scratchpads + todos, Solo-agent executors) with --solo. Use when asked to audit a codebase, find improvement opportunities (bugs, security, performance, test coverage, tech debt, migrations, DX), suggest features or where to take the project next (roadmap, product direction), or generate handoff plans for another agent to implement.
+description: Survey any codebase as a senior advisor and produce prioritized, self-contained implementation plans for OTHER models/agents to execute. Strictly read-only on source code — never implements, fixes, or refactors anything itself. Plans persist natively into Solo (scratchpads + todos, Solo-agent executors) when Solo is available — auto-detected — or to local files with --files. Use when asked to audit a codebase, find improvement opportunities (bugs, security, performance, test coverage, tech debt, migrations, DX), suggest features or where to take the project next (roadmap, product direction), or generate handoff plans for another agent to implement.
 license: MIT
 metadata:
   author: jesse (fork of improve by shadcn)
@@ -16,7 +16,7 @@ The economics of this skill: an expensive, high-ceiling model does the part wher
 
 ## Hard Rules
 
-1. **Never modify source code yourself.** No edits, no fixes, no "quick wins while you're in there." Under the default **files** store, the ONLY files you may create or modify live under `plans/` in the repo root (create it if absent). Under **`--solo`**, the only writes are Solo artifacts — scratchpads, todos, comments, tags, timers — never repo files (one exception: the user may explicitly request an ad-hoc export of a plan to a file — see solo-backend.md). The `execute` variant dispatches a *separate executor agent* that edits code in an isolated git worktree — you review its diff and render a verdict; you still never edit code directly, and you never merge, push, or commit to the user's branch.
+1. **Never modify source code yourself.** No edits, no fixes, no "quick wins while you're in there." Under the **files** store, the ONLY files you may create or modify live under `plans/` in the repo root (create it if absent). Under the **Solo** store, the only writes are Solo artifacts — scratchpads, todos, comments, tags, timers — never repo files (one exception: the user may explicitly request an ad-hoc export of a plan to a file — see solo-backend.md). The `execute` variant dispatches a *separate executor agent* that edits code in an isolated git worktree — you review its diff and render a verdict; you still never edit code directly, and you never merge, push, or commit to the user's branch.
 2. **Never run commands that mutate the user's working tree** — no installs, no builds that write artifacts outside standard ignored dirs, no git commits, no formatters. Read, search, and run read-only analysis only (e.g. `tsc --noEmit`, lint in check mode, `npm audit` / `pnpm audit`, test suite if cheap and side-effect free). Three scoped exceptions: `git worktree add` during `execute` (writes only `.git` metadata and a new directory — the user's checkout is untouched), verification commands inside an executor's disposable worktree during `execute` review, and `gh issue create` under an explicit `--issues` flag.
 3. **Every plan must be fully self-contained.** The executor has not seen this conversation, this codebase survey, or any other plan. If a plan references "the pattern discussed above," it is broken.
 4. **Never reproduce secret values.** If the audit finds credentials, tokens, or `.env` contents, findings and plans reference the `file:line` and credential type only, and recommend rotation. The value itself must never appear in anything you write — files, scratchpads, todos, or issues.
@@ -26,9 +26,11 @@ The economics of this skill: an expensive, high-ceiling model does the part wher
 
 Exactly **one primary store** per run holds the plans, the index, and the rejected-findings memory:
 
-- **files** (default) — behaves exactly like upstream `improve`: plans in `plans/NNN-slug.md`, index in `plans/README.md`, executors dispatched as host subagents with worktree isolation.
-- **`--solo`** — full Solo mode: plans become scratchpad + todo pairs, the todo list IS the index, executors are Solo agents, and review wake-ups use Solo idle timers. **Read [references/solo-backend.md](references/solo-backend.md) before the first Solo-mode write** — it defines the artifact model, status mapping, and the Solo-native `execute`/`reconcile`/`--issues` mechanics. Requires the Solo MCP tools; if they're unavailable, say so and fall back to files.
+- **solo** (default when available) — auto-detected: used when the Solo MCP tools are present and Phase 0 project scoping (see [references/solo-backend.md](references/solo-backend.md)) succeeds. Plans become scratchpad + todo pairs, the todo list IS the index, executors are Solo agents, and review wake-ups use Solo idle timers. **Read solo-backend.md before the first Solo-mode write.** `--solo` forces this store explicitly; if Solo MCP is unavailable, say so and use files.
+- **`--files`** — plans as local files, exactly like upstream `improve`: `plans/NNN-slug.md`, index in `plans/README.md`, executors dispatched as host subagents with worktree isolation. Also the automatic fallback when Solo MCP is absent.
 - **`--issues`** — additive on either primary, never a store of its own: publishes plan bodies as GitHub issues and records the URLs back into the primary store. See [references/closing-the-loop.md](references/closing-the-loop.md).
+
+Resolution order: explicit flag → existing backlog (rule below) → auto-detect (Solo if available, else files). Announce the selected store and why in one line at the start of the run.
 
 **Store-conflict rule (one backlog, never two).** During Recon, check both stores cheaply: does `plans/` exist with plan files, and — when Solo MCP is available — does `todo_list(tags=["improve-plan"])` return anything? If prior plans live only in the store you were NOT asked to use, say so and **follow the existing store**; the flag (or default) wins only if the user repeats it after the warning. `reconcile` always follows where the plans actually are.
 
@@ -42,7 +44,7 @@ Map the territory before judging it:
 - Identify: language(s), framework(s), package manager, **how to build / test / lint / typecheck** (exact commands — these go into every plan as verification gates), test coverage shape, deployment target.
 - Note repo conventions: code style, naming, folder layout, error-handling and state-management patterns. Plans must tell the executor to *match* these, with examples.
 - Check git signal where useful (`git log --oneline -30`, churn hotspots) for what's actively evolving vs. frozen.
-- Under `--solo`, first run the Phase 0 project-scoping steps in [references/solo-backend.md](references/solo-backend.md) (verify the selected Solo project matches this repo before anything is written — the Solo side of the next check is project-scoped). Then run the store-conflict check above.
+- When Solo MCP is available, first run the Phase 0 project-scoping steps in [references/solo-backend.md](references/solo-backend.md) (verify the selected Solo project matches this repo before anything is written — the Solo side of the next check is project-scoped). Then run the store-conflict check above.
 
 If the repo has no working verification command (no tests, broken build), record that — "establish a verification baseline" is often finding #1, and it must precede risky plans in the dependency order.
 
@@ -82,7 +84,7 @@ Present the vetted findings table to the user, ordered by leverage (impact ÷ ef
 
 Present **direction findings separately**, after the table — they're options for the maintainer to weigh, not problems ranked against bugs, and burying "build a plugin system" under "fix the N+1" serves neither. 2–4 grounded suggestions max, each with its evidence and trade-offs in two or three sentences.
 
-Under `--solo`, persist the run's audit record now: one audit-report scratchpad per run (recon facts, the vetted findings table, direction findings, what was NOT audited, rejections) — see [references/solo-backend.md](references/solo-backend.md).
+Under the Solo store, persist the run's audit record now: one audit-report scratchpad per run (recon facts, the vetted findings table, direction findings, what was NOT audited, rejections) — see [references/solo-backend.md](references/solo-backend.md).
 
 Then ask which findings to turn into plans (default suggestion: the top 3–5 plus anything they flag). Also surface **dependency ordering** — e.g. "characterization tests for module X (plan 02) must land before the refactor of X (plan 05)."
 
@@ -101,7 +103,7 @@ plans/
   002-<slug>.md
 ```
 
-Under **`--solo`**, each plan is a scratchpad (full plan body, template unchanged) paired with a todo (status, priority, tags, blockers = the dependency graph), and `todo_list` replaces `plans/README.md` — mechanics in [references/solo-backend.md](references/solo-backend.md).
+Under the **Solo** store, each plan is a scratchpad (full plan body, template unchanged) paired with a todo (status, priority, tags, blockers = the dependency graph), and `todo_list` replaces `plans/README.md` — mechanics in [references/solo-backend.md](references/solo-backend.md).
 
 **Excerpts come from your own reads, never from a subagent's report.** Before writing each plan, open every cited file yourself — subagent line numbers and attributions are leads, not facts, and a wrong excerpt becomes a wrong plan that fails its own drift check.
 
@@ -130,7 +132,8 @@ Finish by writing the index: under files, `plans/README.md` with the recommended
 - `review-plan <plan>` → critique an existing plan (file path, or `NNN` under solo) against the template's standards and tighten it. If you authored the plan in this same session, also have a fresh-context subagent read it cold and report ambiguities — self-critique misses gaps you mentally fill from context the executor won't have.
 - `execute <plan>` → dispatch a cheaper executor on one plan (isolated worktree), then review its diff like a tech lead — re-run done criteria, check scope, read the code — and render a verdict. Files store: a host subagent with worktree isolation; if the host can't spawn isolated subagents, say so and hand the plan over for manual execution instead. Solo store: a Solo agent via `spawn_agent` — see [references/solo-backend.md](references/solo-backend.md). **Read [references/closing-the-loop.md](references/closing-the-loop.md) before the first dispatch.**
 - `reconcile` → process what happened since last session: verify DONE plans, investigate BLOCKED ones, refresh drifted TODOs, retire dead findings. Follows whichever store the plans actually live in. See [references/closing-the-loop.md](references/closing-the-loop.md).
-- `--solo` (modifier on any invocation) → use Solo as the primary store and dispatcher, per [references/solo-backend.md](references/solo-backend.md).
+- `--files` (modifier on any invocation) → force the files store (plans as local files), even when Solo is available.
+- `--solo` (modifier on any invocation) → force the Solo store explicitly; normally unnecessary since Solo is auto-detected — per [references/solo-backend.md](references/solo-backend.md).
 - `--issues` (modifier on any planning invocation) → also publish each written plan as a GitHub issue via `gh`, URL recorded back into the primary store. Only with the explicit flag. See [references/closing-the-loop.md](references/closing-the-loop.md).
 
 ## Tone of the output

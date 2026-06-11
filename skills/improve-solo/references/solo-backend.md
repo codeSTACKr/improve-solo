@@ -1,6 +1,6 @@
-# Solo Backend — storage and dispatch under `--solo`
+# Solo Backend — storage and dispatch when Solo is the store
 
-This file defines how the advisor workflow persists and dispatches when Solo is the primary store. The workflow itself (recon → audit → vet → plan → execute/reconcile) is unchanged from SKILL.md; only the *where* and the *how of handoff* differ. Everything here assumes the Solo MCP tools are available (`whoami`, `scratchpad_*`, `todo_*`, `timer_*`, `spawn_agent`, `send_input`, `get_process_output`). If they aren't, say so and use the files store.
+This file defines how the advisor workflow persists and dispatches when Solo is the primary store (the default whenever the Solo MCP tools are available; `--files` opts out — see SKILL.md for resolution order). The workflow itself (recon → audit → vet → plan → execute/reconcile) is unchanged from SKILL.md; only the *where* and the *how of handoff* differ. Everything here assumes the Solo MCP tools are available (`whoami`, `scratchpad_*`, `todo_*`, `timer_*`, `spawn_agent`, `send_input`, `get_process_output`). If they aren't, say so and use the files store.
 
 **Scope discipline:** use a Solo primitive only where it's the right tool. This backend uses scratchpads, todos (+ tags, blockers, comments, locks), `spawn_agent`/`send_input`, idle timers, and process inspection. It deliberately does **not** use the KV store, terminal processes, or solo.yml commands — nothing in this workflow needs them. They remain available for ad-hoc needs the user raises, but don't shoehorn them in.
 
