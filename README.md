@@ -87,11 +87,11 @@ Audit fan-out still uses the host's lightweight read-only subagents in both mode
 skills/improve-solo/
   SKILL.md                          the workflow (backend-aware)
   references/
-    audit-playbook.md               what to look for, per category (verbatim from upstream)
+    audit-playbook.md               what to look for, per category (from upstream, plus the fork's untrusted-content rule)
     plan-template.md                the handoff plan template (+ solo notes)
     closing-the-loop.md             execute / reconcile / --issues (backend-aware)
     solo-backend.md                 NEW — the full Solo artifact model and dispatch mechanics
-examples/                           example plan output (from upstream)
+examples/                           example output: upstream files-store plan + Solo-store artifacts
 ```
 
 ## License
