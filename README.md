@@ -30,19 +30,29 @@ Exactly **one primary store** per run; `--issues` is additive on top of either. 
 
 ## Installation
 
-In Claude Code:
+**Claude Code** — as a plugin (recommended there: versioned updates via `/plugin update`):
 
 ```
 /plugin marketplace add codeSTACKr/improve-solo
 /plugin install improve-solo@improve-solo
 ```
 
-Or for local development, point the marketplace at your checkout:
-`/plugin marketplace add /path/to/improve-solo`.
+**Any other agent** (Cursor, Codex, Gemini CLI, Amp, OpenCode, …) — as a plain
+skill via the [skills CLI](https://skills.sh), same as upstream:
 
-If you previously copied the skill to `~/.claude/skills/improve-solo`
-manually, remove that copy after installing the plugin — two registrations
-of the same skill name will conflict or silently shadow each other.
+```
+npx skills add codeSTACKr/improve-solo
+```
+
+The skill is agent-agnostic: the Solo store works from any MCP-capable agent
+connected to Solo, and where the host can't spawn subagents the workflow says
+so and degrades gracefully (direct audit, manual plan handoff instead of
+dispatched executors).
+
+In Claude Code, pick **one** mechanism — a skills-CLI copy in
+`~/.claude/skills/improve-solo` and the plugin register the same skill name
+and will conflict or silently shadow each other. For local development, point
+the marketplace at your checkout: `/plugin marketplace add /path/to/improve-solo`.
 
 ## Usage
 
