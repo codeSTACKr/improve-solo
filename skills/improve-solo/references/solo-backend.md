@@ -117,4 +117,4 @@ Additive distribution, same as upstream, sourced from scratchpads:
 
 ## Ad-hoc export
 
-If a plan must be handed to an executor with no Solo MCP access, `scratchpad_save_to_file` writes it as a plain markdown file (e.g. `plans/NNN-slug.md`) in one call. That file is a one-way snapshot — Solo remains the source of truth; don't maintain both.
+If a plan must be handed to an executor with no Solo MCP access, `scratchpad_save_to_file` writes it as a plain markdown file in one call. This is the one user-gated exception to Hard Rule 1's "never repo files": only on explicit user request, and default the path outside the repo (e.g. a temp dir) unless the user names a repo path such as `plans/NNN-slug.md`. That file is a one-way snapshot — Solo remains the source of truth; don't maintain both.

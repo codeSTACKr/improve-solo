@@ -30,6 +30,7 @@ File naming: `plans/NNN-short-slug.md`, numbered in recommended execution order.
 > If any in-scope file changed since this plan was written, compare the
 > "Current state" excerpts against the live code before proceeding; on a
 > mismatch, treat it as a STOP condition.
+> (No git at planning time? Replace the diff with: verify every "Current state" excerpt against the live files; any mismatch is a STOP condition.)
 
 ## Status
 
@@ -38,7 +39,7 @@ File naming: `plans/NNN-short-slug.md`, numbered in recommended execution order.
 - **Risk**: LOW | MED | HIGH
 - **Depends on**: plans/NNN-*.md (or "none")
 - **Category**: bug | security | perf | tests | tech-debt | migration | dx | docs | direction
-- **Planned at**: commit `<short SHA>`, <YYYY-MM-DD>
+- **Planned at**: commit `<short SHA>`, <YYYY-MM-DD> (no git repo? use `no VCS, <date>` and see drift-check note)
 - **Issue**: <GitHub issue URL — only when published via `--issues`; omit otherwise>
 
 ## Why this matters
