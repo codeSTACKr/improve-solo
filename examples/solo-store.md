@@ -18,7 +18,8 @@ comments (intermediate revise rounds, reconcile notes) are omitted.
 ## The plan scratchpad
 
 *Scratchpad 23, project improve-solo. Body reproduced verbatim; the one
-absolute path it contained has been redacted to `<repo>`.*
+absolute path it contained has been redacted to `<repo>`, and relative link targets adjusted to
+resolve from this directory.*
 
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
@@ -54,10 +55,10 @@ All paths relative to `<repo>`. **These excerpts describe the expected post-002/
 - `skills/improve-solo/SKILL.md`:
   - Frontmatter `description:` contains: `Plans persist to local files by default, or natively into Solo (scratchpads + todos, Solo-agent executors) with --solo.`
   - `## Storage backends` opens with `Exactly **one primary store** per run holds the plans, the index, and the rejected-findings memory:` followed by three bullets — `**files** (default)`, `**\`--solo\`**`, `**\`--issues\`**` — then the `**Store-conflict rule (one backlog, never two).**` paragraph.
-  - Phase 1 bullet (post-002 Step 5 text): `Under \`--solo\`, first run the Phase 0 project-scoping steps in [references/solo-backend.md](references/solo-backend.md) (verify the selected Solo project matches this repo before anything is written — the Solo side of the next check is project-scoped). Then run the store-conflict check above.`
+  - Phase 1 bullet (post-002 Step 5 text): `Under \`--solo\`, first run the Phase 0 project-scoping steps in [references/solo-backend.md](../skills/improve-solo/references/solo-backend.md) (verify the selected Solo project matches this repo before anything is written — the Solo side of the next check is project-scoped). Then run the store-conflict check above.`
   - Phase 3 contains: `Under \`--solo\`, persist the run's audit record now:`
   - Phase 4 contains: `Under **\`--solo\`**, each plan is a scratchpad`
-  - Invocation variants list contains: `- \`--solo\` (modifier on any invocation) → use Solo as the primary store and dispatcher, per [references/solo-backend.md](references/solo-backend.md).`
+  - Invocation variants list contains: `- \`--solo\` (modifier on any invocation) → use Solo as the primary store and dispatcher, per [references/solo-backend.md](../skills/improve-solo/references/solo-backend.md).`
   - Hard Rule 1 (post-002 Step 1 text) contains: `Under the default **files** store, the ONLY files you may create or modify live under \`plans/\`` and `Under **\`--solo\`**, the only writes are Solo artifacts — … never repo files (one exception: the user may explicitly request an ad-hoc export of a plan to a file — see solo-backend.md).`
 - `README.md`: intro paragraph (`By default it behaves exactly like upstream (plans as files). With \`--solo\` it stores and dispatches natively…`), the ASCII store diagram (lines ~7–12), the `## Storage backends` table (`| | files (default) | \`--solo\` |`), the `## Usage` block (`/improve-solo --solo` row, composing example `deep security --solo --issues`), and `## How \`--solo\` mode works`.
 - `references/solo-backend.md`: title `# Solo Backend — storage and dispatch under \`--solo\`\``; intro `This file defines how the advisor workflow persists and dispatches when Solo is the primary store.`
@@ -112,7 +113,7 @@ Store resolution, in order; the first rule that applies wins:
 
 Replace the three store bullets with (keep the section's opening sentence and the store-conflict paragraph, which Step 1 does not touch except as noted):
 
-- `**solo** (default when available) — auto-detected: used when the Solo MCP tools are present and Phase 0 project scoping (see [references/solo-backend.md](references/solo-backend.md)) succeeds. Plans become scratchpad + todo pairs, the todo list IS the index, executors are Solo agents, and review wake-ups use Solo idle timers. **Read solo-backend.md before the first Solo-mode write.** \`--solo\` forces this store explicitly; if Solo MCP is unavailable, say so and use files.`
+- `**solo** (default when available) — auto-detected: used when the Solo MCP tools are present and Phase 0 project scoping (see [references/solo-backend.md](../skills/improve-solo/references/solo-backend.md)) succeeds. Plans become scratchpad + todo pairs, the todo list IS the index, executors are Solo agents, and review wake-ups use Solo idle timers. **Read solo-backend.md before the first Solo-mode write.** \`--solo\` forces this store explicitly; if Solo MCP is unavailable, say so and use files.`
 - `**\`--files\`** — plans as local files, exactly like upstream \`improve\`: \`plans/NNN-slug.md\`, index in \`plans/README.md\`, executors dispatched as host subagents with worktree isolation. Also the automatic fallback when Solo MCP is absent.`
 - (keep the `--issues` bullet verbatim)
 
@@ -131,7 +132,7 @@ Recast each as store-conditional rather than flag-conditional:
 - Phase 4: `Under **\`--solo\`**, each plan` → `Under the **Solo** store, each plan`.
 - Invocation variants: replace the `--solo` bullet with two bullets:
   `- \`--files\` (modifier on any invocation) → force the files store (plans as local files), even when Solo is available.`
-  `- \`--solo\` (modifier on any invocation) → force the Solo store explicitly; normally unnecessary since Solo is auto-detected — per [references/solo-backend.md](references/solo-backend.md).`
+  `- \`--solo\` (modifier on any invocation) → force the Solo store explicitly; normally unnecessary since Solo is auto-detected — per [references/solo-backend.md](../skills/improve-solo/references/solo-backend.md).`
 
 **Verify**: `grep -cn -- '--files' skills/improve-solo/SKILL.md` ≥ `3`; `grep -n -- 'Under \`--solo\`' skills/improve-solo/SKILL.md` → no matches.
 
