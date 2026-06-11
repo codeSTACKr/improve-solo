@@ -1,0 +1,13 @@
+{
+  "name": "improve-solo",
+  "description": "Fork of shadcn/improve: audits a codebase and writes plans other agents can execute — to plans/ files by default, or natively into Solo (scratchpads + todos, Solo-agent executors) with --solo. It never edits your code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Jesse Hall"
+  },
+  "license": "MIT",
+  "keywords": ["audit", "code-review", "planning", "agents", "tech-debt", "security", "solo", "soloterm"],
+  "metadata": {
+    "upstream": "https://github.com/shadcn/improve"
+  }
+}
