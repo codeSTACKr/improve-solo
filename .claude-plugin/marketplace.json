@@ -1,0 +1,11 @@
+{
+  "name": "improve-solo",
+  "owner": { "name": "Jesse Hall" },
+  "plugins": [
+    {
+      "name": "improve-solo",
+      "source": "./",
+      "description": "Fork of shadcn/improve with pluggable persistence: plans as files by default, or native Solo scratchpads + todos with --solo."
+    }
+  ]
+}

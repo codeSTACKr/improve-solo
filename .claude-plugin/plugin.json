@@ -6,6 +6,8 @@
     "name": "Jesse Hall"
   },
   "license": "MIT",
+  "homepage": "https://github.com/codeSTACKr/improve-solo",
+  "repository": "https://github.com/codeSTACKr/improve-solo",
   "keywords": ["audit", "code-review", "planning", "agents", "tech-debt", "security", "solo", "soloterm"],
   "metadata": {
     "upstream": "https://github.com/shadcn/improve"
