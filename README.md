@@ -28,6 +28,22 @@ Exactly **one primary store** per run; `--issues` is additive on top of either.
 
 **One backlog, never two:** if prior plans exist in the other store, the skill says so and follows the existing store rather than forking the backlog.
 
+## Installation
+
+In Claude Code:
+
+```
+/plugin marketplace add codeSTACKr/improve-solo
+/plugin install improve-solo@improve-solo
+```
+
+Or for local development, point the marketplace at your checkout:
+`/plugin marketplace add /path/to/improve-solo`.
+
+If you previously copied the skill to `~/.claude/skills/improve-solo`
+manually, remove that copy after installing the plugin — two registrations
+of the same skill name will conflict or silently shadow each other.
+
 ## Usage
 
 ```
